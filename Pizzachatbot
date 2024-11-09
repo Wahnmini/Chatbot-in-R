@@ -1,0 +1,87 @@
+# Load necessary library
+library(dplyr)
+
+# Define the menu
+menu <- data.frame(
+  Item = c("Margherita Pizza", "Pepperoni Pizza", "BBQ Chicken Pizza", "Caesar Salad", "Coke", "Water"),
+  Price = c(8.99, 9.99, 10.99, 5.99, 1.50, 0.50)
+)
+
+# Function to display the menu
+display_menu <- function() {
+  cat("\n--- Calbee Pizza Menu ---\n")
+  for (i in 1:nrow(menu)) {
+    cat(i, ": ", menu$Item[i], " - $", menu$Price[i], "\n", sep = "")
+  }
+}
+
+# Function to take order
+take_order <- function() {
+  order_items <- c()
+  order_prices <- c()
+  
+  repeat {
+    item_number <- as.integer(readline(prompt = "Enter the item number to order (or type 0 to finish): "))
+    
+    if (item_number == 0) {
+      break
+    } else if (item_number > 0 && item_number <= nrow(menu)) {
+      order_items <- c(order_items, menu$Item[item_number])
+      order_prices <- c(order_prices, menu$Price[item_number])
+      cat(menu$Item[item_number], "added to your order.\n")
+    } else {
+      cat("Invalid item number. Please try again.\n")
+    }
+  }
+  
+  return(list(items = order_items, prices = order_prices))
+}
+
+# Function to summarize the bill
+summarize_bill <- function(order) {
+  total <- sum(order$prices)
+  
+  cat("\n--- Order Summary ---\n")
+  for (i in seq_along(order$items)) {
+    cat(order$items[i], " - $", order$prices[i], "\n", sep = "")
+  }
+  
+  cat("Total: $", round(total, 2), "\n", sep = "")
+  
+  return(total)
+}
+
+# Function to handle payment
+handle_payment <- function(total) {
+  payment_method <- readline(prompt = "How would you like to pay? (1: Credit Card, 2: Cash on Delivery): ")
+  
+  if (payment_method == "1") {
+    card_number <- readline(prompt = "Please enter your credit card number: ")
+    cat("Payment of $", round(total, 2), " made using Credit Card ending in ", substr(card_number, nchar(card_number)-3, nchar(card_number)), ". Thank you!\n", sep = "")
+  } else if (payment_method == "2") {
+    cat("Payment of $", round(total, 2), " will be collected on delivery. Thank you!\n", sep = "")
+  } else {
+    cat("Invalid payment method selected. Please try again.\n")
+    handle_payment(total) # Recursively call until valid input is received
+  }
+}
+
+# Main chatbot function
+calbee_pizza_chatbot <- function() {
+  cat("Welcome to Calbee Pizza!\n")
+  
+  name <- readline(prompt = "What's your name? ")
+  
+  cat("Hello, ", name, "! Let's get started with your order.\n", sep = "")
+  
+  display_menu()
+  
+  order <- take_order()
+  
+  total_amount <- summarize_bill(order)
+  
+  handle_payment(total_amount)
+}
+
+# Run the chatbot
+calbee_pizza_chatbot()
